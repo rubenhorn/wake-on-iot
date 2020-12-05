@@ -1,0 +1,40 @@
+#!/bin/bash
+
+if [[ -z $SECRET || -z $URL ]]; then
+    echo "Please export the variables SECRET and URL before running the script"
+    exit 1
+fi
+
+
+function PRINT_USAGE {
+    echo -e "Usage:\n\t$0 <status | on | off>"
+}
+
+function PRINT_STATUS {
+    STATUS=$(curl -s -H "authenticate: $SECRET" $URL/power -X GET)
+    if [ -z $STATUS ]; then
+        echo failed
+        exit 1
+    fi
+    echo ${STATUS//\"}
+}
+
+function SET_POWER {
+    RESULT=$(curl -s -H "authenticate: $SECRET" $URL/power\?value=$1 -X PUT -I | grep HTTP/ | awk {'print $2'})
+    if [[ -z $RESULT || $RESULT != 200  ]]; then
+        echo failed
+        exit 1
+    fi
+    echo sent
+}
+
+if [[ $1 == help ]]; then
+    PRINT_USAGE
+elif [[ $1 == status ]]; then
+    PRINT_STATUS
+elif [[ $1 == on || $1 == off ]]; then
+    SET_POWER $1
+else
+    PRINT_USAGE
+    exit 1
+fi
