@@ -1,5 +1,5 @@
 # Wake-On-IoT
-💻 Laptop ➡ ☁ Cloud ➡ ESP8266 ➡🖥 Workstation  
+💻 Laptop ➡ ☁ Cloud ➡ ESP8266 ➡ 🖥 Workstation  
 Start your PC from anywhere using Heroku / Glitch and an ESP8266.
 
 ## ESP8266
