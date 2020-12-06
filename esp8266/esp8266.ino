@@ -43,8 +43,7 @@ void onEventsCallback(WebsocketsEvent event, String data) {
         client.send(String("authenticate ") + SECRET);
         digitalWrite(PIN_LED, HIGH);
     } else if(event == WebsocketsEvent::ConnectionClosed) {
-        digitalWrite(PIN_LED, LOW);
-        client.connect(WS_URL);
+        ESP.restart();
     }
 }
 
@@ -55,21 +54,22 @@ void setup() {
     pinMode(PIN_LED, OUTPUT);
     digitalWrite(PIN_LED, LOW);
     delay(500);
+    WiFi.mode(WIFI_STA);
     WiFi.begin(SSID, WIFI_PASSWORD);
-    for(int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++) {
+    while(WiFi.status() != WL_CONNECTED) {
         delay(1000);
     }
     client.onMessage(onMessageCallback);
     client.onEvent(onEventsCallback);
     client.setInsecure(); // Do not validate certificates
-    client.connect(WS_URL);    
+    while(!client.connect(WS_URL)) { /* Keep trying */ }
     digitalWrite(PIN_LED, HIGH);
 }
 
 void loop() {
     client.poll();
     if(millisNextUpdateStatus < millis()) {
-      client.send(isPoweredOn() ? "powered-on" : "powered-off");
-      millisNextUpdateStatus += INTERVAL_SEND_STATUS;
+        client.send(isPoweredOn() ? "powered-on" : "powered-off");
+        millisNextUpdateStatus += INTERVAL_SEND_STATUS;
     }
 }
